@@ -1,23 +1,17 @@
 package org.example.communityservice.dto.post;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
-public class PostRequestDto {
-    @NotBlank(message = "post_title_required")
+public class PostUpdateRequestDto {
     @Size(max = 26, message = "post_title_too_long")
     private String postTitle;
 
-    @NotBlank(message = "post_content_required")
     private String postContent;
 
-    @NotBlank(message = "post_image_required")
     @Size(max = 255, message = "post_image_too_long")
     private String postImage;
 }

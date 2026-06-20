@@ -3,7 +3,7 @@ package org.example.communityservice.dummyObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.example.communityservice.dto.user.UserRequestDto;
+import org.example.communityservice.dto.user.UserCreateRequestDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,10 @@ public class User {
     private String profileImage;
     private List<UUID> likePost = new ArrayList<>();
 
-    public User(UserRequestDto userRequestDto){
-        this.email = userRequestDto.getEmail();
-        this.password = userRequestDto.getPassword();
-        this.nickname = userRequestDto.getNickname();
-        this.profileImage = userRequestDto.getProfileImage();
+    public User(UserCreateRequestDto UserCreateRequestDto){
+        this.email = UserCreateRequestDto.getEmail();
+        this.password = UserCreateRequestDto.getPassword();
+        this.nickname = UserCreateRequestDto.getNickname();
+        this.profileImage = UserCreateRequestDto.getProfileImage();
     }
 }

@@ -1,20 +1,20 @@
-package org.example.communityservice.common;
+package org.example.communityservice.common.Exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class CustomException extends RuntimeException{
+public class BusinessException extends RuntimeException{
     private final HttpStatus httpStatus;
     private final Object data;
 
-    public CustomException(HttpStatus httpStatus, String message){
+    public BusinessException(HttpStatus httpStatus, String message){
         super(message);
         this.httpStatus = httpStatus;
         this.data = null;
     }
 
-    public CustomException(HttpStatus httpStatus, String message, Object data){
+    public BusinessException(HttpStatus httpStatus, String message, Object data){
         super(message);
         this.httpStatus = httpStatus;
         this.data = data;

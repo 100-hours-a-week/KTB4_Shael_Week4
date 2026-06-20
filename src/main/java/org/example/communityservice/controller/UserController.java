@@ -1,9 +1,9 @@
 package org.example.communityservice.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.communityservice.common.dto.CommonResponseDto;
-import org.example.communityservice.dto.user.UserResponseDto;
-import org.example.communityservice.dto.user.UserRequestDto;
+import org.example.communityservice.dto.user.*;
 import org.example.communityservice.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +18,15 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<CommonResponseDto<UserResponseDto>> login(@RequestBody UserRequestDto userRequestDto) {
-        UserResponseDto userResponseDto = userService.login(userRequestDto);
+    public ResponseEntity<CommonResponseDto<UserResponseDto>> login(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) {
+        UserResponseDto userResponseDto = userService.login(userLoginRequestDto);
 
         return ResponseEntity.ok(new CommonResponseDto<>("login_success", userResponseDto));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponseDto<Void>> createUser(@RequestBody UserRequestDto userRequestDto){
-        userService.createUser(userRequestDto);
+    public ResponseEntity<CommonResponseDto<Void>> createUser(@Valid @RequestBody UserCreateRequestDto UserCreateRequestDto){
+        userService.createUser(UserCreateRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonResponseDto<>("register_success", null));
     }
@@ -39,15 +39,15 @@ public class UserController {
     }
 
     @PatchMapping("/user/{userUuid}/info")
-    public ResponseEntity<CommonResponseDto<UserResponseDto>> updateInfo(@PathVariable UUID userUuid, @RequestBody UserRequestDto userRequestDto){
-        UserResponseDto userResponseDto = userService.updateInfo(userUuid, userRequestDto);
+    public ResponseEntity<CommonResponseDto<UserResponseDto>> updateInfo(@PathVariable UUID userUuid, @Valid @RequestBody UserInfoUpdateRequestDto userInfoUpdateRequestDto){
+        UserResponseDto userResponseDto = userService.updateInfo(userUuid, userInfoUpdateRequestDto);
 
         return ResponseEntity.ok(new CommonResponseDto<>("update_success", userResponseDto));
     }
 
     @PatchMapping("/user/{userUuid}/password")
-    public ResponseEntity<CommonResponseDto<Void>> updatePassword(@PathVariable UUID userUuid, @RequestBody String password){
-        userService.updatePassword(userUuid, password);
+    public ResponseEntity<CommonResponseDto<Void>> updatePassword(@PathVariable UUID userUuid, @Valid @RequestBody UserPasswordUpdateRequestDto userPasswordUpdateRequestDto){
+        userService.updatePassword(userUuid, userPasswordUpdateRequestDto);
 
         return ResponseEntity.ok(new CommonResponseDto<>("update_success", null));
     }

@@ -1,10 +1,12 @@
 package org.example.communityservice.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.communityservice.common.dto.CommonResponseDto;
 import org.example.communityservice.dto.PostInfoResponseDto;
 import org.example.communityservice.dto.post.PostRequestDto;
 import org.example.communityservice.dto.post.PostResponseDto;
+import org.example.communityservice.dto.post.PostUpdateRequestDto;
 import org.example.communityservice.service.PostInfoService;
 import org.example.communityservice.service.PostService;
 import org.springframework.http.HttpStatus;
@@ -23,29 +25,29 @@ public class PostController {
     private final PostInfoService postInfoService;
 
     @GetMapping
-        List<PostResponseDto> postResponseDtoList = postService.showPosts(userUuid);
     public ResponseEntity<CommonResponseDto<List<PostResponseDto>>> showPostList(@PathVariable UUID userUuid){
+        List<PostResponseDto> postResponseDtoList = postService.showPostList(userUuid);
 
         return ResponseEntity.ok(new CommonResponseDto<>("fetch_success", postResponseDtoList));
     }
 
     @PostMapping
-    public ResponseEntity<CommonResponseDto<PostResponseDto>> createPost(@PathVariable UUID userUuid, @RequestBody PostRequestDto postRequestDto){
+    public ResponseEntity<CommonResponseDto<PostResponseDto>> createPost(@PathVariable UUID userUuid, @Valid @RequestBody PostRequestDto postRequestDto){
         PostResponseDto postResponseDto = postService.createPost(userUuid, postRequestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommonResponseDto<>("register_success", postResponseDto));
     }
 
     @GetMapping("/{postUuid}")
-        PostResponseDto postResponseDto = postService.showPost(userUuid, postUuid);
     public ResponseEntity<CommonResponseDto<PostResponseDto>> showPostDetail(@PathVariable UUID userUuid, @PathVariable UUID postUuid){
+        PostResponseDto postResponseDto = postService.showPostDetail(userUuid, postUuid);
 
         return ResponseEntity.ok(new CommonResponseDto<>("fetch_success", postResponseDto));
     }
 
     @PatchMapping("/{postUuid}")
-    public ResponseEntity<CommonResponseDto<PostResponseDto>> updatePost(@PathVariable UUID userUuid, @PathVariable UUID postUuid, @RequestBody PostRequestDto postRequestDto){
-        PostResponseDto postResponseDto = postService.updatePost(userUuid, postUuid, postRequestDto);
+    public ResponseEntity<CommonResponseDto<PostResponseDto>> updatePost(@PathVariable UUID userUuid, @PathVariable UUID postUuid, @Valid @RequestBody PostUpdateRequestDto postUpdateRequestDto){
+        PostResponseDto postResponseDto = postService.updatePost(userUuid, postUuid, postUpdateRequestDto);
 
         return ResponseEntity.ok(new CommonResponseDto<>("update_success", postResponseDto));
     }

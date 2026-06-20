@@ -1,21 +1,24 @@
 package org.example.communityservice.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.communityservice.common.CustomException;
+import org.example.communityservice.common.Exception.*;
 import org.example.communityservice.common.dto.ErrorInfoDto;
 import org.example.communityservice.common.dto.ErrorResponseDto;
 import org.example.communityservice.dto.comment.CommentResponseDto;
 import org.example.communityservice.dto.post.PostRequestDto;
 import org.example.communityservice.dto.post.PostResponseDto;
+import org.example.communityservice.dto.post.PostUpdateRequestDto;
 import org.example.communityservice.dummyObject.Comment;
 import org.example.communityservice.dummyObject.Post;
 import org.example.communityservice.dummyObject.PostInfo;
+import org.example.communityservice.dummyObject.User;
 import org.example.communityservice.repository.CommentRepository;
 import org.example.communityservice.repository.PostInfoRepository;
 import org.example.communityservice.repository.PostRepository;
 import org.example.communityservice.repository.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class PostService {
 
@@ -31,8 +35,8 @@ public class PostService {
     private final PostInfoRepository postInfoRepository;
     private final CommentRepository commentRepository;
 
-        userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
     public List<PostResponseDto> showPostList(UUID userUuid){
+        userRepository.findByUuid(userUuid).orElseThrow(() -> new UnauthorizedException("not_exist"));
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
@@ -51,15 +55,11 @@ public class PostService {
         return postResponseDtoList;
     }
 
-    public PostResponseDto createPost(UUID userUuid, PostRequestDto postRequestDto){
-
-        userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
-        if(postRequestDto.getPostTitle()==null || postRequestDto.getPostContent()==null || postRequestDto.getPostImage()==null){
-            throw new CustomException(HttpStatus.BAD_REQUEST,"invalid_request");
-        }
+    public PostResponseDto createPost(UUID userUuid, @Valid PostRequestDto postRequestDto){
+        User user = userRepository.findByUuid(userUuid).orElseThrow(() -> new UnauthorizedException("not_exist"));
 
         UUID postUuid = UUID.randomUUID();
-        String writerNickname = userRepository.findByUuid(userUuid).orElseThrow().getNickname();
+        String writerNickname = user.getNickname();
         LocalDateTime postDate = LocalDateTime.now();
         Post post = new Post(postUuid, userUuid, writerNickname, postRequestDto.getPostTitle(), postDate, postRequestDto.getPostContent(), postRequestDto.getPostImage());
         postRepository.save(post);
@@ -70,15 +70,14 @@ public class PostService {
 
     public PostResponseDto showPostDetail(UUID userUuid, UUID postUuid){
 
-        userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
-
-        Post post = postRepository.findByUuid(postUuid).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND,"not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post", "not_exist")))));
-        PostInfo postInfo = postInfoRepository.findByUuid(postUuid).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND,"not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post_info", "not_exist")))));
+        userRepository.findByUuid(userUuid).orElseThrow(() -> new UnauthorizedException("not_exist"));
+        Post post = postRepository.findByUuid(postUuid).orElseThrow(() -> new NotFoundException("not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post", "not_exist")))));
+        PostInfo postInfo = postInfoRepository.findByUuid(postUuid).orElseThrow(() -> new NotFoundException("not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post_info", "not_exist")))));
         postInfo.increaseViewCount();
         List<Comment> commentList = commentRepository.findAllByPostUuid(postUuid);
         List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
         for(Comment comment : commentList){
-            User user = userRepository.findByUuid(comment.getCommentWriterUuid()).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
+            User user = userRepository.findByUuid(comment.getCommentWriterUuid()).orElseThrow(() -> new UnauthorizedException("not_exist"));
             String writerProfileImage = user.getProfileImage();
             String writerNickname = user.getNickname();
             commentResponseDtoList.add(new CommentResponseDto(comment, writerProfileImage, writerNickname));
@@ -87,36 +86,36 @@ public class PostService {
         return new PostResponseDto(post, postInfo.getLikeCount(), postInfo.getCommentCount(), postInfo.getViewCount(), commentResponseDtoList);
     }
 
-    public PostResponseDto updatePost(UUID userUuid, UUID postUuid, PostRequestDto postRequestDto){
-        userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
-        Post existPost = postRepository.findByUuid(postUuid).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND,"not_found", new ErrorResponseDto(List.of(new ErrorInfoDto(null, "not_exist")))));
+    public PostResponseDto updatePost(UUID userUuid, UUID postUuid, @Valid PostUpdateRequestDto postUpdateRequestDto){
+        userRepository.findByUuid(userUuid).orElseThrow(() -> new UnauthorizedException("not_exist"));
+        Post existPost = postRepository.findByUuid(postUuid).orElseThrow(() -> new NotFoundException ("not_found", new ErrorResponseDto(List.of(new ErrorInfoDto(null, "not_exist")))));
 
         if(!userUuid.equals(existPost.getWriterUuid())){
-            throw new CustomException(HttpStatus.FORBIDDEN,"unauthorized");
+            throw new ForbiddenException();
         }
 
-        if(postRequestDto.getPostTitle()==null && postRequestDto.getPostContent()==null && postRequestDto.getPostImage()==null){
-            throw new CustomException(HttpStatus.BAD_REQUEST,"invalid_request");
+        if(postUpdateRequestDto.getPostTitle()==null && postUpdateRequestDto.getPostContent()==null && postUpdateRequestDto.getPostImage()==null){
+            throw new BadRequestException("invalid_request");
         }
 
-        if(postRequestDto.getPostTitle()!=null){
-            existPost.setPostTitle(postRequestDto.getPostTitle());
+        if(postUpdateRequestDto.getPostTitle()!=null){
+            existPost.setPostTitle(postUpdateRequestDto.getPostTitle());
         }
-        if(postRequestDto.getPostContent()!=null){
-            existPost.setPostContent(postRequestDto.getPostContent());
+        if(postUpdateRequestDto.getPostContent()!=null){
+            existPost.setPostContent(postUpdateRequestDto.getPostContent());
         }
-        if(postRequestDto.getPostImage()!=null){
-            existPost.setPostImage(postRequestDto.getPostImage());
+        if(postUpdateRequestDto.getPostImage()!=null){
+            existPost.setPostImage(postUpdateRequestDto.getPostImage());
         }
         return new PostResponseDto(existPost.getPostTitle(), existPost.getPostContent(), existPost.getPostImage());
     }
 
     public void deletePost(UUID userUuid, UUID postUuid){
-        userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
-        Post existPost = postRepository.findByUuid(postUuid).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND,"not_found", new ErrorResponseDto(List.of(new ErrorInfoDto(null, "not_exist")))));
+        userRepository.findByUuid(userUuid).orElseThrow(() -> new UnauthorizedException("not_exist"));
+        Post existPost = postRepository.findByUuid(postUuid).orElseThrow(() -> new NotFoundException("not_found", new ErrorResponseDto(List.of(new ErrorInfoDto(null, "not_exist")))));
 
         if(!userUuid.equals(existPost.getWriterUuid())){
-            throw new CustomException(HttpStatus.FORBIDDEN,"unauthorized");
+            throw new ForbiddenException();
         }
         postRepository.delete(existPost);
     }

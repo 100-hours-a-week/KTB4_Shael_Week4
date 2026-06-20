@@ -1,7 +1,9 @@
 package org.example.communityservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.communityservice.common.CustomException;
+import org.example.communityservice.common.Exception.ForbiddenException;
+import org.example.communityservice.common.Exception.NotFoundException;
+import org.example.communityservice.common.Exception.UnauthorizedException;
 import org.example.communityservice.common.dto.ErrorInfoDto;
 import org.example.communityservice.common.dto.ErrorResponseDto;
 import org.example.communityservice.dto.PostInfoResponseDto;
@@ -11,7 +13,6 @@ import org.example.communityservice.dummyObject.User;
 import org.example.communityservice.repository.PostInfoRepository;
 import org.example.communityservice.repository.PostRepository;
 import org.example.communityservice.repository.UserRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,12 +26,12 @@ public class PostInfoService {
     private final PostInfoRepository postInfoRepository;
 
     public PostInfoResponseDto toggleLike(UUID userUuid, UUID postUuid){
-        User user = userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
-        Post post = postRepository.findByUuid(postUuid).orElseThrow((() -> new CustomException(HttpStatus.NOT_FOUND,"not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post", "not_exist"))))));
-        PostInfo postInfo = postInfoRepository.findByUuid(postUuid).orElseThrow((() -> new CustomException(HttpStatus.NOT_FOUND,"not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post_info", "not_exist"))))));
+        User user = userRepository.findByUuid(userUuid).orElseThrow(() -> new UnauthorizedException("not_exist"));
+        Post post = postRepository.findByUuid(postUuid).orElseThrow(() -> new NotFoundException("not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post", "not_exist")))));
+        PostInfo postInfo = postInfoRepository.findByUuid(postUuid).orElseThrow(() -> new NotFoundException("not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("postInfo", "not_exist")))));
 
         if(post.getWriterUuid().equals(userUuid)){
-            throw new CustomException(HttpStatus.FORBIDDEN,"unauthorized");
+            throw new ForbiddenException();
         }
         if(user.getLikePost().contains(postUuid)) {
             userRepository.deleteLikePost(user, postUuid);
