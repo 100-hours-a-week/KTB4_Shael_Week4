@@ -60,10 +60,10 @@ public class UserService {
         if(userRequestDto.getEmail()==null && userRequestDto.getNickname()==null && userRequestDto.getProfileImage()==null) {
             throw new CustomException(HttpStatus.BAD_REQUEST,"invalid_request", new ErrorResponseDto(List.of(new ErrorInfoDto(null, "invalid_request"))));
         }
-        if(userRepository.duplicateEmail(userRequestDto.getEmail())) {
+        if(userInfoUpdateRequestDto.getEmail()!=null && !existUser.getEmail().equals(userInfoUpdateRequestDto.getEmail()) && userRepository.duplicateEmail(userInfoUpdateRequestDto.getEmail())) {
             errorInfoDtoList.add(new ErrorInfoDto("email", "duplicate_email"));
         }
-        if(userRepository.duplicateNickname(userRequestDto.getNickname())){
+        if(userInfoUpdateRequestDto.getNickname()!=null && !existUser.getNickname().equals(userInfoUpdateRequestDto.getNickname()) && userRepository.duplicateNickname(userInfoUpdateRequestDto.getNickname())){
             errorInfoDtoList.add(new ErrorInfoDto("nickname", "duplicate_nickname"));
         }
         if(!errorInfoDtoList.isEmpty()){
