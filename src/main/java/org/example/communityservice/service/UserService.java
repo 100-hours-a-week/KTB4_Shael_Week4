@@ -80,7 +80,7 @@ public class UserService {
         if(userRequestDto.getProfileImage()!=null){
             existUser.setProfileImage(userRequestDto.getProfileImage());
         }
-        return new UserResponseDto(existUser.getEmail(), existUser.getNickname(), existUser.getProfileImage());
+        return new UserResponseDto(existUser);
     }
 
     public void updatePassword(UUID userUuid, String password){

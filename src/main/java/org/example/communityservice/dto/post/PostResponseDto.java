@@ -1,9 +1,8 @@
 package org.example.communityservice.dto.post;
 
 import lombok.Getter;
-import org.example.communityservice.dummyObject.Comment;
+import org.example.communityservice.dto.comment.CommentResponseDto;
 import org.example.communityservice.dummyObject.Post;
-import org.example.communityservice.dummyObject.PostInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,9 +16,11 @@ public class PostResponseDto {
     private String postTitle;
     private String postContent;
     private LocalDateTime postDate;
-    private PostInfo postInfo;
+    private int likeCount;
+    private int commentCount;
+    private int viewCount;
     private String postImage;
-    private List<Comment> postComment;
+    private List<CommentResponseDto> commentList;
 
     public PostResponseDto(UUID postUuid, UUID writerUuid){
         this.postUuid = postUuid;
@@ -32,22 +33,26 @@ public class PostResponseDto {
         this.postImage = postImage;
     }
 
-    public PostResponseDto(UUID postUuid, String postTitle, PostInfo postInfo, LocalDateTime postDate, String writerNickname){
+    public PostResponseDto(UUID postUuid, String postTitle, int likeCount, int commentCount, int viewCount, LocalDateTime postDate, String writerNickname){
         this.postUuid = postUuid;
         this.postTitle = postTitle;
-        this.postInfo = postInfo;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
+        this.viewCount = viewCount;
         this.postDate = postDate;
         this.writerNickname = writerNickname;
     }
 
-    public PostResponseDto(Post post, PostInfo postInfo, List<Comment> postComment){
+    public PostResponseDto(Post post, int likeCount, int commentCount, int viewCount, List<CommentResponseDto> commentList){
         this.writerUuid = post.getWriterUuid();
         this.postTitle = post.getPostTitle();
         this.writerNickname = post.getWriterNickname();
         this.postDate = post.getPostDate();
         this.postImage = post.getPostImage();
         this.postContent = post.getPostContent();
-        this.postInfo = postInfo;
-        this.postComment = postComment;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
+        this.viewCount = viewCount;
+        this.commentList = commentList;
     }
 }

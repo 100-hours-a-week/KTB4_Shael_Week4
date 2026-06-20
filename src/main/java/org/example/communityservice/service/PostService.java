@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.communityservice.common.CustomException;
 import org.example.communityservice.common.dto.ErrorInfoDto;
 import org.example.communityservice.common.dto.ErrorResponseDto;
+import org.example.communityservice.dto.comment.CommentResponseDto;
 import org.example.communityservice.dto.post.PostRequestDto;
 import org.example.communityservice.dto.post.PostResponseDto;
 import org.example.communityservice.dummyObject.Comment;
@@ -41,7 +42,8 @@ public class PostService {
         for(int i=0; i<postList.size(); i++){
             for(int j=0; j<postInfoList.size(); j++){
                 if(postList.get(i).getPostUuid().equals(postInfoList.get(j).getPostUuid())){
-                    postResponseDtoList.add(new PostResponseDto(postList.get(i).getPostUuid(), postList.get(i).getPostTitle(), postInfoList.get(j), postList.get(i).getPostDate(), postList.get(i).getWriterNickname()));
+                    postResponseDtoList.add(new PostResponseDto(postList.get(i).getPostUuid(), postList.get(i).getPostTitle(), postInfoList.get(j).getLikeCount(),
+                            postInfoList.get(j).getCommentCount(), postInfoList.get(j).getViewCount(), postList.get(i).getPostDate(), postList.get(i).getWriterNickname()));
                     break;
                 }
             }
@@ -74,8 +76,15 @@ public class PostService {
         PostInfo postInfo = postInfoRepository.findByUuid(postUuid).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND,"not_found", new ErrorResponseDto(List.of(new ErrorInfoDto("post_info", "not_exist")))));
         postInfo.increaseViewCount();
         List<Comment> commentList = commentRepository.findAllByPostUuid(postUuid);
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+        for(Comment comment : commentList){
+            User user = userRepository.findByUuid(comment.getCommentWriterUuid()).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
+            String writerProfileImage = user.getProfileImage();
+            String writerNickname = user.getNickname();
+            commentResponseDtoList.add(new CommentResponseDto(comment, writerProfileImage, writerNickname));
+        }
 
-        return new PostResponseDto(post, postInfo, commentList);
+        return new PostResponseDto(post, postInfo.getLikeCount(), postInfo.getCommentCount(), postInfo.getViewCount(), commentResponseDtoList);
     }
 
     public PostResponseDto updatePost(UUID userUuid, UUID postUuid, PostRequestDto postRequestDto){
