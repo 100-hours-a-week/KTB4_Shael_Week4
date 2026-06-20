@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-//이건 정하는 것에만 의미가 있기에 그냥 Setter 사용함.(속도를 올리거나 내리는 개념이 아니므로)
 @Setter
 @Getter
 @NoArgsConstructor

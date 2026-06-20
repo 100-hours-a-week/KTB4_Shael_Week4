@@ -30,8 +30,8 @@ public class PostService {
     private final PostInfoRepository postInfoRepository;
     private final CommentRepository commentRepository;
 
-    public List<PostResponseDto> showPosts(UUID userUuid){
         userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
+    public List<PostResponseDto> showPostList(UUID userUuid){
 
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
@@ -66,7 +66,7 @@ public class PostService {
         return new PostResponseDto(postUuid, userUuid);
     }
 
-    public PostResponseDto showPost(UUID userUuid, UUID postUuid){
+    public PostResponseDto showPostDetail(UUID userUuid, UUID postUuid){
 
         userRepository.findByUuid(userUuid).orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "not_exist"));
 

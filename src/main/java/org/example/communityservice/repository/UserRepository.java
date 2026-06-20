@@ -48,7 +48,6 @@ public class UserRepository {
         return result;
     }
 
-    //user가 존재하지 않을 수 있기에
     public Optional<User> findByEmail(String email){
         User user = null;
         for (User findUser : userList) {
@@ -68,7 +67,6 @@ public class UserRepository {
         userList.remove(user);
     }
 
-    //user가 존재하지 않을 수 있기에
     public Optional<User> findByUuid(UUID userUuid){
         User user = null;
         for(User findUser : userList){

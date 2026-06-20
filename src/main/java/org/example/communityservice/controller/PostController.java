@@ -23,8 +23,8 @@ public class PostController {
     private final PostInfoService postInfoService;
 
     @GetMapping
-    public ResponseEntity<CommonResponseDto<List<PostResponseDto>>> showPosts(@PathVariable UUID userUuid){
         List<PostResponseDto> postResponseDtoList = postService.showPosts(userUuid);
+    public ResponseEntity<CommonResponseDto<List<PostResponseDto>>> showPostList(@PathVariable UUID userUuid){
 
         return ResponseEntity.ok(new CommonResponseDto<>("fetch_success", postResponseDtoList));
     }
@@ -37,8 +37,8 @@ public class PostController {
     }
 
     @GetMapping("/{postUuid}")
-    public ResponseEntity<CommonResponseDto<PostResponseDto>> showPost(@PathVariable UUID userUuid, @PathVariable UUID postUuid){
         PostResponseDto postResponseDto = postService.showPost(userUuid, postUuid);
+    public ResponseEntity<CommonResponseDto<PostResponseDto>> showPostDetail(@PathVariable UUID userUuid, @PathVariable UUID postUuid){
 
         return ResponseEntity.ok(new CommonResponseDto<>("fetch_success", postResponseDto));
     }

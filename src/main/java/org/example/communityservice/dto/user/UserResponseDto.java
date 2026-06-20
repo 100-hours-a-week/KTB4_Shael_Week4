@@ -21,7 +21,6 @@ public class UserResponseDto {
         this.profileImage = user.getProfileImage();
     }
 
-    //비밀번호 제외한 응답을 위해 생성
     public UserResponseDto(String email, String nickname, String profileImage){
         this.email = email;
         this.nickname = nickname;
